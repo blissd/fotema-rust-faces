@@ -1,5 +1,6 @@
 use crate::builder::FaceDetection;
 use crate::detection::{RustFacesError, RustFacesResult};
+use directories::ProjectDirs;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT};
 use std::fs::File;
@@ -66,16 +67,13 @@ fn download_file(url: &str, destination: &str) -> RustFacesResult<()> {
 }
 
 fn get_cache_dir() -> RustFacesResult<PathBuf> {
-    let home_dir = home::home_dir();
-    if home_dir.is_none() {
-        return Err(RustFacesError::Other(
-            "Failed to get home directory.".to_string(),
-        ));
-    }
+    let dirs = ProjectDirs::from("", "rustyfaces", "rust_faces")
+        .ok_or(RustFacesError::Other("Failed to get home directory".into()))?;
 
-    let cache_dir = home_dir.unwrap().join(".rust_faces/");
+    let cache_dir = dirs.cache_dir();
     std::fs::create_dir_all(&cache_dir)?;
-    Ok(cache_dir)
+
+    Ok(cache_dir.into())
 }
 
 pub struct GitHubRepository {}
