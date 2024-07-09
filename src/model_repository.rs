@@ -67,7 +67,7 @@ fn download_file(url: &str, destination: &str) -> RustFacesResult<()> {
 }
 
 fn get_cache_dir() -> RustFacesResult<PathBuf> {
-    let dirs = ProjectDirs::from("", "rustyfaces", "rust_faces")
+    let dirs = ProjectDirs::from("", "rustybuilder", "rust_faces")
         .ok_or(RustFacesError::Other("Failed to get home directory".into()))?;
 
     let cache_dir = dirs.cache_dir();
