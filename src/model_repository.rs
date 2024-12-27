@@ -88,17 +88,17 @@ impl ModelRepository for GitHubRepository {
     fn get_model(&self, face_detector: &FaceDetection) -> RustFacesResult<Vec<PathBuf>> {
         let (urls, filenames) = match face_detector {
             FaceDetection::BlazeFace640(_) => (
-                ["https://github.com/rustybuilder/model-zoo/raw/main/face-detection/blazefaces-640.onnx"].as_slice(),
+                ["https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/blazefaces-640.onnx"].as_slice(),
                 ["blazeface-640.onnx"].as_slice(),
             ),
             FaceDetection::BlazeFace320(_) => (
-                ["https://github.com/rustybuilder/model-zoo/raw/main/face-detection/blazeface-320.onnx"].as_slice(),
+                ["https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/blazeface-320.onnx"].as_slice(),
                 ["blazeface-320.onnx"].as_slice(),
             ),
             FaceDetection::MtCnn(_) => (
-                ["https://github.com/rustybuilder/model-zoo/raw/main/face-detection/mtcnn-pnet.onnx",
-                "https://github.com/rustybuilder/model-zoo/raw/main/face-detection/mtcnn-rnet.onnx",
-                "https://github.com/rustybuilder/model-zoo/raw/main/face-detection/mtcnn-onet.onnx"].as_slice(),
+                ["https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/mtcnn-pnet.onnx",
+                "https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/mtcnn-rnet.onnx",
+                "https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/mtcnn-onet.onnx"].as_slice(),
                 ["mtcnn-pnet.onnx", "mtcnn-rnet.onnx", "mtcnn-onet.onnx"].as_slice(),
             )
         };
@@ -130,7 +130,7 @@ mod tests {
     #[ignore]
     fn test_download() {
         download_file(
-            "https://github.com/rustybuilder/model-zoo/raw/main/face-detection/blazeface-320.onnx",
+            "https://github.com/blissd/fotema-rust-faces-model-zoo/raw/main/face-detection/blazeface-320.onnx",
             "tests/output/sample_download",
         )
         .unwrap();
