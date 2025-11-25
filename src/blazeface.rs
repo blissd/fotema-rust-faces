@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use image::{
     imageops::{self, FilterType},
     GenericImageView, ImageBuffer, Pixel, Rgb,
@@ -87,15 +85,8 @@ pub struct BlazeFace {
 }
 
 impl BlazeFace {
-    pub fn from_file(
-        env: Arc<ort::Environment>,
-        model_path: &str,
-        params: BlazeFaceParams,
-    ) -> Self {
-        let session = ort::session::SessionBuilder::new(&env)
-            .unwrap()
-            .with_model_from_file(model_path)
-            .unwrap();
+    pub fn from_file(model_path: &str, params: BlazeFaceParams) -> Self {
+        let session = Session::builder()?.commit_from_file(model_path)?;
         Self { session, params }
     }
 }
@@ -234,12 +225,12 @@ mod tests {
         output_dir: PathBuf,
     ) {
         use crate::viz;
-        let environment = Arc::new(
-            ort::Environment::builder()
-                .with_name("BlazeFace")
-                .build()
-                .unwrap(),
-        );
+        // let environment = Arc::new(
+        //     ort::Environment::builder()
+        //         .with_name("BlazeFace")
+        //         .build()
+        //         .unwrap(),
+        // );
 
         let params = match &blaze_model {
             crate::FaceDetection::BlazeFace640(params) => params.clone(),
@@ -250,7 +241,7 @@ mod tests {
         let drive = GitHubRepository::new();
         let model_path = drive.get_model(&blaze_model).expect("Can't download model")[0].clone();
 
-        let face_detector = BlazeFace::from_file(environment, model_path.to_str().unwrap(), params);
+        let face_detector = BlazeFace::from_file(model_path.to_str().unwrap(), params);
         let mut canvas = sample_array_image.to_rgb8();
         let faces = face_detector
             .detect(sample_array_image.into_dyn().view())

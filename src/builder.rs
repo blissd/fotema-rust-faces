@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use ort::{
     execution_providers::{CUDAExecutionProviderOptions, CoreMLExecutionProviderOptions},
     ExecutionProvider,
@@ -111,7 +109,7 @@ impl FaceDetectorBuilder {
     ///
     /// A new face detector.
     pub fn build(&self) -> RustFacesResult<Box<dyn FaceDetector>> {
-        let mut ort_builder = ort::Environment::builder().with_name("RustFaces");
+        let mut ort_builder = ort::init();
 
         ort_builder = match self.infer_params.provider {
             Provider::OrtCuda(device_id) => {
@@ -138,7 +136,8 @@ impl FaceDetectorBuilder {
             _ => ort_builder,
         };
 
-        let env = Arc::new(ort_builder.build()?);
+        ort_builder.commit()?; // create environment
+
         let repository = GitHubRepository::new();
 
         let model_paths = match &self.open_mode {
@@ -152,18 +151,15 @@ impl FaceDetectorBuilder {
 
         match &self.detector {
             FaceDetection::BlazeFace640(params) => Ok(Box::new(BlazeFace::from_file(
-                env,
                 &model_paths[0],
                 params.clone(),
             ))),
             FaceDetection::BlazeFace320(params) => Ok(Box::new(BlazeFace::from_file(
-                env,
                 &model_paths[0],
                 params.clone(),
             ))),
             FaceDetection::MtCnn(params) => Ok(Box::new(
                 MtCnn::from_file(
-                    env,
                     &model_paths[0],
                     &model_paths[1],
                     &model_paths[2],

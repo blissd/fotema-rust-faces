@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use image::{
     imageops::{self, FilterType},
     ImageBuffer, Rgb, RgbImage,
@@ -55,15 +53,14 @@ impl MtCnn {
     ///
     /// * `MtCnn` - MtCnn face detector.
     pub fn from_file(
-        env: Arc<ort::Environment>,
         pnet_path: &str,
         rnet_path: &str,
         onet_path: &str,
         params: MtCnnParams,
     ) -> RustFacesResult<Self> {
-        let pnet = ort::session::SessionBuilder::new(&env)?.with_model_from_file(pnet_path)?;
-        let rnet = ort::session::SessionBuilder::new(&env)?.with_model_from_file(rnet_path)?;
-        let onet = ort::session::SessionBuilder::new(&env)?.with_model_from_file(onet_path)?;
+        let pnet = ort::session::Session::builder()?.commit_from_file(pnet_path)?;
+        let rnet = ort::session::Session::builder()?.commit_from_file(rnet_path)?;
+        let onet = ort::session::Session::builder()?.commit_from_file(onet_path)?;
 
         Ok(Self {
             pnet,
@@ -391,12 +388,12 @@ mod tests {
     fn should_detect(sample_array_image: Array3<u8>, output_dir: PathBuf) {
         use crate::FaceDetection;
 
-        let environment = Arc::new(
-            ort::Environment::builder()
-                .with_name("MtCnn")
-                .build()
-                .unwrap(),
-        );
+        // let environment = Arc::new(
+        //     ort::Environment::builder()
+        //         .with_name("MtCnn")
+        //         .build()
+        //         .unwrap(),
+        // );
 
         let drive = GitHubRepository::new();
         let model_paths = drive
@@ -404,7 +401,6 @@ mod tests {
             .expect("Can't download model");
 
         let face_detector = MtCnn::from_file(
-            environment,
             model_paths[0].to_str().unwrap(),
             model_paths[1].to_str().unwrap(),
             model_paths[2].to_str().unwrap(),
