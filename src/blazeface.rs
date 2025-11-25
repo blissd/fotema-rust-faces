@@ -80,7 +80,7 @@ impl Default for BlazeFaceParams {
 }
 
 pub struct BlazeFace {
-    session: ort::Session,
+    session: ort::session::Session,
     params: BlazeFaceParams,
 }
 

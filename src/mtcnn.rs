@@ -33,9 +33,9 @@ impl Default for MtCnnParams {
 
 /// MtCnn face detector.
 pub struct MtCnn {
-    pnet: ort::Session,
-    rnet: ort::Session,
-    onet: ort::Session,
+    pnet: ort::session::Session,
+    rnet: ort::session::Session,
+    onet: ort::session::Session,
     params: MtCnnParams,
 }
 
