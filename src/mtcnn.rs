@@ -4,6 +4,7 @@ use image::{
 };
 use ndarray::{s, Array3, Array4, ArrayViewD, Axis, CowArray, Zip};
 use ort::tensor::OrtOwnedTensor;
+use ort::value::Tensor;
 
 use crate::{Face, FaceDetector, Nms, Rect, RustFacesResult};
 
@@ -113,10 +114,7 @@ impl MtCnn {
                 |(_n, c, h, w)| (image.get_pixel(w as u32, h as u32)[c] as f32 - 127.5) / 128.0,
             );
 
-            let output_tensors = self.pnet.run(vec![ort::Value::from_array(
-                self.pnet.allocator(),
-                &CowArray::from(image).into_dyn(),
-            )?])?;
+            let output_tensors = self.pnet.run(ort::inputs![Tensor::from_array(image)?])?;
 
             let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
             let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
@@ -214,10 +212,9 @@ impl MtCnn {
     ) -> Result<Vec<Face>, crate::RustFacesError> {
         let mut rnet_faces = Vec::new();
         for (faces, input_tensor) in self.batch_faces(image, proposals, 24) {
-            let output_tensors = self.rnet.run(vec![ort::Value::from_array(
-                self.rnet.allocator(),
-                &CowArray::from(input_tensor).into_dyn(),
-            )?])?;
+            let output_tensors = self
+                .rnet
+                .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
             let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
             let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
             let image_width = (image.width() - 1) as f32;
@@ -276,10 +273,9 @@ impl MtCnn {
     ) -> Result<Vec<Face>, crate::RustFacesError> {
         let mut onet_faces = Vec::new();
         for (faces, input_tensor) in self.batch_faces(image, proposals, 48) {
-            let output_tensors = self.onet.run(vec![ort::Value::from_array(
-                self.onet.allocator(),
-                &CowArray::from(input_tensor).into_dyn(),
-            )?])?;
+            let output_tensors = self
+                .onet
+                .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
 
             let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?; // 0
             let landmarks_regressions: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;

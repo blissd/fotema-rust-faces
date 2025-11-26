@@ -903,19 +903,6 @@ dependencies = [
 
 [[package]]
 name = "image"
-version = "0.24.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "527909aa81e20ac3a44803521443a765550f09b5130c2c2fa1ea59c2f8f50a3a"
-dependencies = [
- "bytemuck",
- "byteorder",
- "color_quant",
- "num-rational",
- "num-traits",
-]
-
-[[package]]
-name = "image"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd54d660e773627692c524beaad361aca785a4f9f5730ce91f42aabe5bce3d11"
@@ -956,7 +943,7 @@ dependencies = [
  "ab_glyph",
  "approx",
  "getrandom",
- "image 0.25.1",
+ "image",
  "itertools 0.12.1",
  "nalgebra 0.32.6",
  "num",
@@ -1254,21 +1241,6 @@ dependencies = [
 
 [[package]]
 name = "nalgebra"
-version = "0.30.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb2d0de08694bed883320212c18ee3008576bfe8c306f4c3c4a58b4876998be"
-dependencies = [
- "approx",
- "matrixmultiply",
- "num-complex",
- "num-rational",
- "num-traits",
- "simba 0.7.3",
- "typenum",
-]
-
-[[package]]
-name = "nalgebra"
 version = "0.32.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b5c17de023a86f59ed79891b2e5d5a94c705dbe904a5b5c9c952ea6221b03e4"
@@ -1279,6 +1251,20 @@ dependencies = [
  "num-rational",
  "num-traits",
  "simba 0.8.1",
+ "typenum",
+]
+
+[[package]]
+name = "nalgebra"
+version = "0.33.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26aecdf64b707efd1310e3544d709c5c0ac61c13756046aaaba41be5c4f66a3b"
+dependencies = [
+ "approx",
+ "num-complex",
+ "num-rational",
+ "num-traits",
+ "simba 0.9.1",
  "typenum",
 ]
 
@@ -1306,19 +1292,6 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "tempfile",
-]
-
-[[package]]
-name = "ndarray"
-version = "0.15.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adb12d4e967ec485a5f71c6311fe28158e9d6f4bc4a447b474184d0f91a8fa32"
-dependencies = [
- "matrixmultiply",
- "num-complex",
- "num-integer",
- "num-traits",
- "rawpointer",
 ]
 
 [[package]]
@@ -1360,13 +1333,13 @@ checksum = "0676bb32a98c1a483ce53e500a81ad9c3d5b3f7c920c28c24e9cb0980d0b5bc8"
 
 [[package]]
 name = "nshare"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4447657cd40e3107416ec4f2ac3e61a18781b00061789e3b8f4bbcbccb26c4c6"
+checksum = "60f2f3256fd1d647fdaac74abad0682766a6ffde01f8ccc138f9e1c641ac997c"
 dependencies = [
- "image 0.24.6",
- "nalgebra 0.30.1",
- "ndarray 0.15.6",
+ "image",
+ "nalgebra 0.33.2",
+ "ndarray",
 ]
 
 [[package]]
@@ -1539,7 +1512,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fa7e49bd669d32d7bc2a15ec540a527e7764aec722a45467814005725bcd721"
 dependencies = [
  "libloading",
- "ndarray 0.16.1",
+ "ndarray",
  "ort-sys",
  "smallvec 2.0.0-alpha.10",
  "tracing",
@@ -1984,11 +1957,11 @@ version = "1.0.0"
 dependencies = [
  "criterion",
  "directories",
- "image 0.25.1",
+ "image",
  "imageproc",
  "indicatif",
  "itertools 0.11.0",
- "ndarray 0.15.6",
+ "ndarray",
  "nshare",
  "ort",
  "reqwest",
@@ -2161,9 +2134,9 @@ dependencies = [
 
 [[package]]
 name = "simba"
-version = "0.7.3"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f3fd720c48c53cace224ae62bef1bbff363a70c68c4802a78b5cc6159618176"
+checksum = "061507c94fc6ab4ba1c9a0305018408e312e17c041eb63bef8aa726fa33aceae"
 dependencies = [
  "approx",
  "num-complex",
@@ -2174,15 +2147,14 @@ dependencies = [
 
 [[package]]
 name = "simba"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "061507c94fc6ab4ba1c9a0305018408e312e17c041eb63bef8aa726fa33aceae"
+checksum = "c99284beb21666094ba2b75bbceda012e610f5479dfcc2d6e2426f53197ffd95"
 dependencies = [
  "approx",
  "num-complex",
  "num-traits",
  "paste",
- "wide",
 ]
 
 [[package]]

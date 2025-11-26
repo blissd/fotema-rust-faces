@@ -4,7 +4,7 @@ use image::{
 };
 use itertools::Itertools;
 use ndarray::{Array3, ArrayViewD, Axis, CowArray};
-use ort::{tensor::OrtOwnedTensor, Value};
+use ort::{tensor::OrtOwnedTensor, value::Tensor};
 
 use crate::{
     detection::{FaceDetector, RustFacesResult},
@@ -126,10 +126,7 @@ impl FaceDetector for BlazeFace {
         )
         .insert_axis(Axis(0));
 
-        let output_tensors = self.session.run(vec![Value::from_array(
-            self.session.allocator(),
-            &CowArray::from(image).into_dyn(),
-        )?])?;
+        let output_tensors = self.session.run(ort::inputs![Tensor::from_array(image)?])?;
 
         // Boxes regressions: N box with the format [start x, start y, end x, end y].
         let boxes: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
