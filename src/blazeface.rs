@@ -86,9 +86,9 @@ pub struct BlazeFace {
 }
 
 impl BlazeFace {
-    pub fn from_file(model_path: &str, params: BlazeFaceParams) -> Self {
+    pub fn from_file(model_path: &str, params: BlazeFaceParams) -> RustFacesResult<Self> {
         let session = Session::builder()?.commit_from_file(model_path)?;
-        Self { session, params }
+        Ok(Self { session, params })
     }
 }
 

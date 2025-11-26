@@ -153,11 +153,11 @@ impl FaceDetectorBuilder {
             FaceDetection::BlazeFace640(params) => Ok(Box::new(BlazeFace::from_file(
                 &model_paths[0],
                 params.clone(),
-            ))),
+            )?)),
             FaceDetection::BlazeFace320(params) => Ok(Box::new(BlazeFace::from_file(
                 &model_paths[0],
                 params.clone(),
-            ))),
+            )?)),
             FaceDetection::MtCnn(params) => Ok(Box::new(
                 MtCnn::from_file(
                     &model_paths[0],
