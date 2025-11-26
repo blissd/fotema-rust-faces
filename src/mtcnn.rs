@@ -116,8 +116,8 @@ impl MtCnn {
 
             let output_tensors = self.pnet.run(ort::inputs![Tensor::from_array(image)?])?;
 
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
+            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
+            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
 
             let (net_out_width, net_out_height) = {
                 let shape = scores.view().dim();
@@ -215,8 +215,8 @@ impl MtCnn {
             let output_tensors = self
                 .rnet
                 .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
+            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
+            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
             let image_width = (image.width() - 1) as f32;
             let image_height = (image.height() - 1) as f32;
 
@@ -277,9 +277,10 @@ impl MtCnn {
                 .onet
                 .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
 
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?; // 0
-            let landmarks_regressions: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract()?; // 1
+            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?; // 0
+            let landmarks_regressions: OrtOwnedTensor<f32, _> =
+                output_tensors[1].try_extract_array()?;
+            let scores: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract_array()?; // 1
             let image_width = (image.width() - 1) as f32;
             let image_height = (image.height() - 1) as f32;
 

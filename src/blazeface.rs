@@ -129,9 +129,9 @@ impl FaceDetector for BlazeFace {
         let output_tensors = self.session.run(ort::inputs![Tensor::from_array(image)?])?;
 
         // Boxes regressions: N box with the format [start x, start y, end x, end y].
-        let boxes: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract()?;
-        let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract()?;
-        let landmarks: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract()?;
+        let boxes: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
+        let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
+        let landmarks: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract_array()?;
         let num_boxes = boxes.view().shape()[1];
 
         let priors = PriorBoxes::new(
