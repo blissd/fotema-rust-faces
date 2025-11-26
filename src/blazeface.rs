@@ -5,7 +5,7 @@ use image::{
 use itertools::Itertools;
 use ndarray::{Array3, ArrayViewD, Axis};
 use ort::session::Session;
-use ort::{tensor::OrtOwnedTensor, value::Tensor};
+use ort::value::Tensor;
 
 use crate::{
     detection::{FaceDetector, RustFacesResult},
@@ -93,7 +93,7 @@ impl BlazeFace {
 }
 
 impl FaceDetector for BlazeFace {
-    fn detect(&self, image: ArrayViewD<u8>) -> RustFacesResult<Vec<Face>> {
+    fn detect(&mut self, image: ArrayViewD<u8>) -> RustFacesResult<Vec<Face>> {
         let shape = image.shape().to_vec();
         let (width, height, _) = (shape[1], shape[0], shape[2]);
 
@@ -130,9 +130,9 @@ impl FaceDetector for BlazeFace {
         let output_tensors = self.session.run(ort::inputs![Tensor::from_array(image)?])?;
 
         // Boxes regressions: N box with the format [start x, start y, end x, end y].
-        let boxes: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
-        let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
-        let landmarks: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract_array()?;
+        let boxes: ArrayViewD<f32> = output_tensors[0].try_extract_array()?;
+        let scores: ArrayViewD<f32> = output_tensors[1].try_extract_array()?;
+        let landmarks: ArrayViewD<f32> = output_tensors[2].try_extract_array()?;
         let num_boxes = boxes.view().shape()[1];
 
         let priors = PriorBoxes::new(
@@ -143,25 +143,17 @@ impl FaceDetector for BlazeFace {
         let scale_ratios = (input_width as f32 / ratio, input_height as f32 / ratio);
 
         let faces = boxes
-            .view()
             .to_shape((num_boxes, 4))
             .unwrap()
             .axis_iter(Axis(0))
             .zip(
                 landmarks
-                    .view()
                     .to_shape((num_boxes, 10))
                     .unwrap()
                     .axis_iter(Axis(0)),
             )
             .zip(priors.anchors.iter())
-            .zip(
-                scores
-                    .view()
-                    .to_shape((num_boxes, 2))
-                    .unwrap()
-                    .axis_iter(Axis(0)),
-            )
+            .zip(scores.to_shape((num_boxes, 2)).unwrap().axis_iter(Axis(0)))
             .filter_map(|(((rect, landmarks), prior), score)| {
                 let score = score[1];
 

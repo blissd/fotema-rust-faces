@@ -3,7 +3,6 @@ use image::{
     ImageBuffer, Rgb, RgbImage,
 };
 use ndarray::{s, Array3, Array4, ArrayViewD, Axis, Zip};
-use ort::tensor::OrtOwnedTensor;
 use ort::value::Tensor;
 
 use crate::{Face, FaceDetector, Nms, Rect, RustFacesResult};
@@ -72,7 +71,7 @@ impl MtCnn {
     }
 
     fn run_proposal_inference(
-        &self,
+        &mut self,
         image: &ImageBuffer<Rgb<u8>, &[u8]>,
     ) -> Result<Vec<Face>, crate::RustFacesError> {
         const PNET_CELL_SIZE: usize = 12;
@@ -116,8 +115,8 @@ impl MtCnn {
 
             let output_tensors = self.pnet.run(ort::inputs![Tensor::from_array(image)?])?;
 
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
+            let box_regressions: ArrayViewD<f32> = output_tensors[0].try_extract_array()?;
+            let scores: ArrayViewD<f32> = output_tensors[1].try_extract_array()?;
 
             let (net_out_width, net_out_height) = {
                 let shape = scores.view().dim();
@@ -171,7 +170,7 @@ impl MtCnn {
     }
 
     fn batch_faces<'a>(
-        &self,
+        &mut self,
         image: &'a ImageBuffer<Rgb<u8>, &[u8]>,
         proposals: &'a [Face],
         input_size: usize,
@@ -206,7 +205,7 @@ impl MtCnn {
     }
 
     fn run_refine_net(
-        &self,
+        &mut self,
         image: &ImageBuffer<Rgb<u8>, &[u8]>,
         proposals: &[Face],
     ) -> Result<Vec<Face>, crate::RustFacesError> {
@@ -215,21 +214,19 @@ impl MtCnn {
             let output_tensors = self
                 .rnet
                 .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[1].try_extract_array()?;
+            let box_regressions: ArrayViewD<f32> = output_tensors[0].try_extract_array()?;
+            let scores: ArrayViewD<f32> = output_tensors[1].try_extract_array()?;
             let image_width = (image.width() - 1) as f32;
             let image_height = (image.height() - 1) as f32;
 
             let batch_faces = itertools::izip!(
                 faces.iter(),
                 scores
-                    .view()
                     .to_shape((faces.len(), 2))
                     .unwrap()
                     .lanes(Axis(1))
                     .into_iter(),
                 box_regressions
-                    .view()
                     .to_shape((faces.len(), 4))
                     .unwrap()
                     .lanes(Axis(1))
@@ -267,7 +264,7 @@ impl MtCnn {
     }
 
     fn run_optmized_net(
-        &self,
+        &mut self,
         image: &ImageBuffer<Rgb<u8>, &[u8]>,
         proposals: &[Face],
     ) -> Result<Vec<Face>, crate::RustFacesError> {
@@ -277,29 +274,25 @@ impl MtCnn {
                 .onet
                 .run(ort::inputs![Tensor::from_array(input_tensor)?])?;
 
-            let box_regressions: OrtOwnedTensor<f32, _> = output_tensors[0].try_extract_array()?; // 0
-            let landmarks_regressions: OrtOwnedTensor<f32, _> =
-                output_tensors[1].try_extract_array()?;
-            let scores: OrtOwnedTensor<f32, _> = output_tensors[2].try_extract_array()?; // 1
+            let box_regressions: ArrayViewD<f32> = output_tensors[0].try_extract_array()?; // 0
+            let landmarks_regressions: ArrayViewD<f32> = output_tensors[1].try_extract_array()?;
+            let scores: ArrayViewD<f32> = output_tensors[2].try_extract_array()?; // 1
             let image_width = (image.width() - 1) as f32;
             let image_height = (image.height() - 1) as f32;
 
             let batch_faces = itertools::izip!(
                 faces.iter(),
                 scores
-                    .view()
                     .to_shape((faces.len(), 2))
                     .unwrap()
                     .lanes(Axis(1))
                     .into_iter(),
                 box_regressions
-                    .view()
                     .to_shape((faces.len(), 4))
                     .unwrap()
                     .lanes(Axis(1))
                     .into_iter(),
                 landmarks_regressions
-                    .view()
                     .to_shape((faces.len(), 10))
                     .unwrap()
                     .lanes(Axis(1))
@@ -347,7 +340,7 @@ impl MtCnn {
 }
 
 impl FaceDetector for MtCnn {
-    fn detect(&self, image: ArrayViewD<u8>) -> RustFacesResult<Vec<Face>> {
+    fn detect(&mut self, image: ArrayViewD<u8>) -> RustFacesResult<Vec<Face>> {
         let shape = image.shape().to_vec();
         let (image_width, image_height) = (shape[1], shape[0]);
         let image = ImageBuffer::<Rgb<u8>, &[u8]>::from_raw(
