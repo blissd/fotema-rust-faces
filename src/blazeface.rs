@@ -3,7 +3,8 @@ use image::{
     GenericImageView, ImageBuffer, Pixel, Rgb,
 };
 use itertools::Itertools;
-use ndarray::{Array3, ArrayViewD, Axis, CowArray};
+use ndarray::{Array3, ArrayViewD, Axis};
+use ort::session::Session;
 use ort::{tensor::OrtOwnedTensor, value::Tensor};
 
 use crate::{

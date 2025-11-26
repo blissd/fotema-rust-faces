@@ -2,7 +2,7 @@ use image::{
     imageops::{self, FilterType},
     ImageBuffer, Rgb, RgbImage,
 };
-use ndarray::{s, Array3, Array4, ArrayViewD, Axis, CowArray, Zip};
+use ndarray::{s, Array3, Array4, ArrayViewD, Axis, Zip};
 use ort::tensor::OrtOwnedTensor;
 use ort::value::Tensor;
 
