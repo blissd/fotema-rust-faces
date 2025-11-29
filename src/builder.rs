@@ -1,4 +1,7 @@
-use ort::execution_providers::{CUDAExecutionProvider, CoreMLExecutionProvider, ExecutionProvider};
+use ort::execution_providers::{
+    CPUExecutionProvider, CUDAExecutionProvider, CoreMLExecutionProvider, ExecutionProvider,
+    MIGraphXExecutionProvider,
+};
 
 use crate::{
     blazeface::BlazeFaceParams,
@@ -108,7 +111,13 @@ impl FaceDetectorBuilder {
     pub fn build(&self) -> RustFacesResult<Box<dyn FaceDetector>> {
         let mut ort_builder = ort::init();
 
-        ort_builder = match self.infer_params.provider {
+        let ort_builder = ort_builder.with_execution_providers([
+            CUDAExecutionProvider::default().build(),
+            MIGraphXExecutionProvider::default().build(),
+            CPUExecutionProvider::default().build(),
+        ]);
+
+        /*ort_builder = match self.infer_params.provider {
             Provider::OrtCuda(device_id) => {
                 let provider = CUDAExecutionProvider::default().with_device_id(device_id);
 
@@ -126,7 +135,7 @@ impl FaceDetectorBuilder {
                 ort_builder.with_execution_providers([CoreMLExecutionProvider::default().build()])
             }
             _ => ort_builder,
-        };
+        };*/
 
         ort_builder.commit()?; // create environment
 
