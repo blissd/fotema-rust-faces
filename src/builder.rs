@@ -1,6 +1,6 @@
 use ort::execution_providers::{
     CPUExecutionProvider, CUDAExecutionProvider, CoreMLExecutionProvider, ExecutionProvider,
-    MIGraphXExecutionProvider,
+    MIGraphXExecutionProvider, VitisAIExecutionProvider,
 };
 
 use crate::{
@@ -112,8 +112,9 @@ impl FaceDetectorBuilder {
         let mut ort_builder = ort::init();
 
         let ort_builder = ort_builder.with_execution_providers([
-            CUDAExecutionProvider::default().build(),
+            VitisAIExecutionProvider::default().build(),
             MIGraphXExecutionProvider::default().build(),
+            CUDAExecutionProvider::default().build(),
             CPUExecutionProvider::default().build(),
         ]);
 
