@@ -1,7 +1,4 @@
-use ort::{
-    execution_providers::{CUDAExecutionProviderOptions, CoreMLExecutionProviderOptions},
-    ExecutionProvider,
-};
+use ort::execution_providers::{CUDAExecutionProvider, CoreMLExecutionProvider, ExecutionProvider};
 
 use crate::{
     blazeface::BlazeFaceParams,
@@ -113,15 +110,12 @@ impl FaceDetectorBuilder {
 
         ort_builder = match self.infer_params.provider {
             Provider::OrtCuda(device_id) => {
-                let provider = ExecutionProvider::CUDA(CUDAExecutionProviderOptions {
-                    device_id: device_id as u32,
-                    ..Default::default()
-                });
+                let provider = CUDAExecutionProvider::default().with_device_id(device_id);
 
-                if !provider.is_available() {
+                if !provider.is_available().is_ok_and(|x| x) {
                     eprintln!("Warning: CUDA is not available. It'll likely use CPU inference.");
                 }
-                ort_builder.with_execution_providers([provider])
+                ort_builder.with_execution_providers([provider.build()])
             }
             Provider::OrtVino(_device_id) => {
                 return Err(crate::RustFacesError::Other(
@@ -129,9 +123,7 @@ impl FaceDetectorBuilder {
                 ));
             }
             Provider::OrtCoreMl => {
-                ort_builder.with_execution_providers([ExecutionProvider::CoreML(
-                    CoreMLExecutionProviderOptions::default(),
-                )])
+                ort_builder.with_execution_providers([CoreMLExecutionProvider::default().build()])
             }
             _ => ort_builder,
         };
