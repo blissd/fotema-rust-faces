@@ -1,6 +1,6 @@
 use ort::execution_providers::{
-    CPUExecutionProvider, CUDAExecutionProvider, CoreMLExecutionProvider, ExecutionProvider,
-    MIGraphXExecutionProvider, VitisAIExecutionProvider,
+    CPUExecutionProvider, CUDAExecutionProvider, MIGraphXExecutionProvider,
+    VitisAIExecutionProvider,
 };
 
 use crate::{
@@ -109,7 +109,7 @@ impl FaceDetectorBuilder {
     ///
     /// A new face detector.
     pub fn build(&self) -> RustFacesResult<Box<dyn FaceDetector>> {
-        let mut ort_builder = ort::init();
+        let ort_builder = ort::init();
 
         let ort_builder = ort_builder.with_execution_providers([
             VitisAIExecutionProvider::default().build(),
