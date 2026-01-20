@@ -138,7 +138,7 @@ impl FaceDetectorBuilder {
             _ => ort_builder,
         };*/
 
-        ort_builder.commit()?; // create environment
+        ort_builder.commit(); // create environment
 
         let repository = GitHubRepository::new();
 
