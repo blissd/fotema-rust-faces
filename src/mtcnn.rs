@@ -398,7 +398,7 @@ mod tests {
         )
         .expect("Failed to load MTCNN detector.");
         let mut canvas = sample_array_image.to_rgb8();
-        let faces = face_detector
+        let mut faces = face_detector
             .detect(sample_array_image.into_dyn().view())
             .expect("Can't detect faces");
 
