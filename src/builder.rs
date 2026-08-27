@@ -1,7 +1,4 @@
-use ort::execution_providers::{
-    CPUExecutionProvider, CUDAExecutionProvider, MIGraphXExecutionProvider,
-    VitisAIExecutionProvider,
-};
+use ort::ep;
 
 use crate::{
     blazeface::BlazeFaceParams,
@@ -112,10 +109,9 @@ impl FaceDetectorBuilder {
         let ort_builder = ort::init();
 
         let ort_builder = ort_builder.with_execution_providers([
-            VitisAIExecutionProvider::default().build(),
-            MIGraphXExecutionProvider::default().build(),
-            CUDAExecutionProvider::default().build(),
-            CPUExecutionProvider::default().build(),
+            ep::Vitis::default().build(),
+            ep::CUDA::default().build(),
+            ep::CPU::default().build(),
         ]);
 
         /*ort_builder = match self.infer_params.provider {
