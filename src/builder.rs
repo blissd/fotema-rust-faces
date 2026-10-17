@@ -134,7 +134,7 @@ impl FaceDetectorBuilder {
             _ => ort_builder,
         };*/
 
-        ort_builder.commit(); // create environment
+        let env = ort_builder.build()?; // create environment
 
         let repository = GitHubRepository::new();
 
@@ -149,15 +149,18 @@ impl FaceDetectorBuilder {
 
         match &self.detector {
             FaceDetection::BlazeFace640(params) => Ok(Box::new(BlazeFace::from_file(
+                &env,
                 &model_paths[0],
                 params.clone(),
             )?)),
             FaceDetection::BlazeFace320(params) => Ok(Box::new(BlazeFace::from_file(
+                &env,
                 &model_paths[0],
                 params.clone(),
             )?)),
             FaceDetection::MtCnn(params) => Ok(Box::new(
                 MtCnn::from_file(
+                    &env,
                     &model_paths[0],
                     &model_paths[1],
                     &model_paths[2],

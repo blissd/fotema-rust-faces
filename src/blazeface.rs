@@ -6,6 +6,7 @@ use itertools::Itertools;
 use ndarray::{Array3, ArrayViewD, Axis};
 use ort::session::Session;
 use ort::value::Tensor;
+use ort::environment::Environment;
 
 use crate::{
     detection::{FaceDetector, RustFacesResult},
@@ -86,8 +87,8 @@ pub struct BlazeFace {
 }
 
 impl BlazeFace {
-    pub fn from_file(model_path: &str, params: BlazeFaceParams) -> RustFacesResult<Self> {
-        let session = Session::builder()?.commit_from_file(model_path)?;
+    pub fn from_file(env: &Environment, model_path: &str, params: BlazeFaceParams) -> RustFacesResult<Self> {
+        let session = Session::builder(env)?.commit_from_file(model_path)?;
         Ok(Self { session, params })
     }
 }
@@ -222,6 +223,8 @@ mod tests {
         //         .unwrap(),
         // );
 
+        let env = ort::init().build().unwrap();
+
         let params = match &blaze_model {
             crate::FaceDetection::BlazeFace640(params) => params.clone(),
             crate::FaceDetection::BlazeFace320(params) => params.clone(),
@@ -231,7 +234,7 @@ mod tests {
         let drive = GitHubRepository::new();
         let model_path = drive.get_model(&blaze_model).expect("Can't download model")[0].clone();
 
-        let face_detector = BlazeFace::from_file(model_path.to_str().unwrap(), params);
+        let mut face_detector = BlazeFace::from_file(&env, model_path.to_str().unwrap(), params).unwrap();
         let mut canvas = sample_array_image.to_rgb8();
         let faces = face_detector
             .detect(sample_array_image.into_dyn().view())

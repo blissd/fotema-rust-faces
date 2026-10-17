@@ -4,6 +4,7 @@ use image::{
 };
 use ndarray::{s, Array3, Array4, ArrayViewD, Axis, Zip};
 use ort::value::Tensor;
+use ort::environment::Environment;
 
 use crate::{Face, FaceDetector, Nms, Rect, RustFacesResult};
 
@@ -53,14 +54,15 @@ impl MtCnn {
     ///
     /// * `MtCnn` - MtCnn face detector.
     pub fn from_file(
+        env: &Environment,
         pnet_path: &str,
         rnet_path: &str,
         onet_path: &str,
         params: MtCnnParams,
     ) -> RustFacesResult<Self> {
-        let pnet = ort::session::Session::builder()?.commit_from_file(pnet_path)?;
-        let rnet = ort::session::Session::builder()?.commit_from_file(rnet_path)?;
-        let onet = ort::session::Session::builder()?.commit_from_file(onet_path)?;
+        let pnet = ort::session::Session::builder(env)?.commit_from_file(pnet_path)?;
+        let rnet = ort::session::Session::builder(env)?.commit_from_file(rnet_path)?;
+        let onet = ort::session::Session::builder(env)?.commit_from_file(onet_path)?;
 
         Ok(Self {
             pnet,
@@ -385,12 +387,15 @@ mod tests {
         //         .unwrap(),
         // );
 
+        let env = ort::init().build().unwrap();
+
         let drive = GitHubRepository::new();
         let model_paths = drive
             .get_model(&FaceDetection::MtCnn(MtCnnParams::default()))
             .expect("Can't download model");
 
-        let face_detector = MtCnn::from_file(
+        let mut face_detector = MtCnn::from_file(
+            &env,
             model_paths[0].to_str().unwrap(),
             model_paths[1].to_str().unwrap(),
             model_paths[2].to_str().unwrap(),
@@ -398,7 +403,7 @@ mod tests {
         )
         .expect("Failed to load MTCNN detector.");
         let mut canvas = sample_array_image.to_rgb8();
-        let mut faces = face_detector
+        let faces = face_detector
             .detect(sample_array_image.into_dyn().view())
             .expect("Can't detect faces");
 

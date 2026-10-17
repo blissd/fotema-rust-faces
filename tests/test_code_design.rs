@@ -5,7 +5,7 @@ use rust_faces::{
 
 #[test]
 pub fn main() {
-    let face_detector =
+    let mut face_detector =
         FaceDetectorBuilder::new(FaceDetection::BlazeFace640(BlazeFaceParams::default()))
             .download()
             .infer_params(InferParams {
