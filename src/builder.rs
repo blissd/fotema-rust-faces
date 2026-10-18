@@ -1,11 +1,11 @@
-use ort::ep;
-
 use crate::{
     blazeface::BlazeFaceParams,
     detection::{FaceDetector, RustFacesResult},
     model_repository::{GitHubRepository, ModelRepository},
     BlazeFace, MtCnn, MtCnnParams,
 };
+
+use ort::environment::Environment;
 
 pub enum FaceDetection {
     BlazeFace640(BlazeFaceParams),
@@ -105,14 +105,14 @@ impl FaceDetectorBuilder {
     /// # Returns
     ///
     /// A new face detector.
-    pub fn build(&self) -> RustFacesResult<Box<dyn FaceDetector>> {
-        let ort_builder = ort::init();
+    pub fn build(&self, env: &Environment) -> RustFacesResult<Box<dyn FaceDetector>> {
+        // let ort_builder = ort::init();
 
-        let ort_builder = ort_builder.with_execution_providers([
-            ep::Vitis::default().build(),
-            ep::CUDA::default().build(),
-            ep::CPU::default().build(),
-        ]);
+        // let ort_builder = ort_builder.with_execution_providers([
+        //     ep::Vitis::default().build(),
+        //     ep::CUDA::default().build(),
+        //     ep::CPU::default().build(),
+        // ]);
 
         /*ort_builder = match self.infer_params.provider {
             Provider::OrtCuda(device_id) => {
@@ -134,7 +134,7 @@ impl FaceDetectorBuilder {
             _ => ort_builder,
         };*/
 
-        let env = ort_builder.build()?; // create environment
+        // let env = ort_builder.build()?; // create environment
 
         let repository = GitHubRepository::new();
 

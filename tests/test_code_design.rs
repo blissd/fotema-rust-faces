@@ -5,6 +5,8 @@ use rust_faces::{
 
 #[test]
 pub fn main() {
+    let env = ort::init().build().unwrap();
+
     let mut face_detector =
         FaceDetectorBuilder::new(FaceDetection::BlazeFace640(BlazeFaceParams::default()))
             .download()
@@ -13,7 +15,7 @@ pub fn main() {
                 intra_threads: Some(5),
                 ..Default::default()
             })
-            .build()
+            .build(&env)
             .expect("Fail to load the face detector.");
 
     let image = image::open("tests/data/images/faces.jpg")
